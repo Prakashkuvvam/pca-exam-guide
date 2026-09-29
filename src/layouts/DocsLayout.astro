@@ -22,8 +22,8 @@ const currentIndex = docs.findIndex((d) => d.slug === currentSlug);
 const prevDoc = currentIndex > 0 ? docs[currentIndex - 1] : null;
 const nextDoc = currentIndex < docs.length - 1 ? docs[currentIndex + 1] : null;
 
-const prevLink = prevDoc ? { title: prevDoc.data.title, href: `/${prevDoc.slug}/` } : undefined;
-const nextLink = nextDoc ? { title: nextDoc.data.title, href: `/${nextDoc.slug}/` } : undefined;
+const prevLink = prevDoc ? { title: prevDoc.data.title, href: `/${prevDoc.id.replace(/\.md$/, '')}/` } : undefined;
+const nextLink = nextDoc ? { title: nextDoc.data.title, href: `/${nextDoc.id.replace(/\.md$/, '')}/` } : undefined;
 ---
 
 <Layout title={title} description={description}>

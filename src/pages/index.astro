@@ -100,10 +100,11 @@ const colorMap: Record<string, string> = {
         {domains.map((domain) => {
           const doc = docs.find((d) => d.data.domain === domain.id);
           if (!doc) return null;
+          const slug = doc.id.replace(/\.md$/, '');
           const gradient = colorMap[domain.color] || colorMap.indigo;
           return (
             <a
-              href={`/${doc.slug}/`}
+              href={`/${slug}/`}
               class="group relative p-5 rounded-xl border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-all hover:shadow-lg no-underline! overflow-hidden"
             >
               <div class={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${gradient}`}></div>

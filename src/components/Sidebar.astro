@@ -24,7 +24,7 @@ const currentPath = Astro.url.pathname;
     </div>
     {domains.map((domain) => {
       const doc = docs.find((d) => d.data.domain === domain.id);
-      const href = doc ? `/${doc.slug}/` : '#';
+      const href = doc ? `/${doc.id.replace(/\.md$/, '')}/` : '#';
       const isActive = currentPath === href;
       return (
         <a
