@@ -1,0 +1,67 @@
+---
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: Heading[];
+}
+
+const { headings } = Astro.props;
+const toc = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+---
+
+<aside class="hidden xl:block w-56 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto p-4">
+  <div class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-3">
+    On this page
+  </div>
+  <nav class="space-y-1">
+    {toc.map((heading) => (
+      <a
+        href={`#${heading.slug}`}
+        class:list={[
+          'block text-xs no-underline! transition-colors rounded px-2 py-1',
+          heading.depth === 2
+            ? 'font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-primary)]'
+            : 'text-[var(--color-text-muted)] hover:text-[var(--color-primary)] pl-4',
+        ]}
+        data-toc-link={heading.slug}
+      >
+        {heading.text}
+      </a>
+    ))}
+  </nav>
+</aside>
+
+<script>
+  // Scroll-spy for TOC
+  const tocLinks = document.querySelectorAll('[data-toc-link]');
+  const headings = document.querySelectorAll('h2[id], h3[id]');
+
+  function updateActiveLink() {
+    let current = '';
+    const scrollPos = window.scrollY + 100;
+
+    headings.forEach((heading) => {
+      if (heading instanceof HTMLElement && heading.offsetTop <= scrollPos) {
+        current = heading.id;
+      }
+    });
+
+    tocLinks.forEach((link) => {
+      const el = link as HTMLElement;
+      if (el.dataset.tocLink === current) {
+        el.classList.add('text-[var(--color-primary)]');
+        el.classList.add('bg-[var(--color-primary)]/10');
+      } else {
+        el.classList.remove('text-[var(--color-primary)]');
+        el.classList.remove('bg-[var(--color-primary)]/10');
+      }
+    });
+  }
+
+  window.addEventListener('scroll', updateActiveLink, { passive: true });
+  updateActiveLink();
+</script>

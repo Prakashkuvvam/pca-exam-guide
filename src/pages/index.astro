@@ -1,0 +1,162 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../components/Layout.astro';
+
+const docs = (await getCollection('docs')).sort((a, b) => a.data.order - b.data.order);
+
+const domains = [
+  { id: 0, label: 'Introduction', icon: '📋', weight: null, color: 'indigo' },
+  { id: 1, label: 'Observability Concepts', icon: '👁️', weight: 18, color: 'violet' },
+  { id: 2, label: 'Prometheus Fundamentals', icon: '🏗️', weight: 20, color: 'pink' },
+  { id: 3, label: 'PromQL', icon: '📊', weight: 28, color: 'orange' },
+  { id: 4, label: 'Instrumentation & Exporters', icon: '🔧', weight: 16, color: 'teal' },
+  { id: 5, label: 'Dashboarding & Visualization', icon: '📈', weight: 8, color: 'cyan' },
+  { id: 6, label: 'Service Discovery', icon: '🔍', weight: 6, color: 'lime' },
+  { id: 7, label: 'Alerting & Alertmanager', icon: '🚨', weight: 4, color: 'amber' },
+];
+
+const colorMap: Record<string, string> = {
+  indigo: 'from-indigo-500 to-indigo-600',
+  violet: 'from-violet-500 to-violet-600',
+  pink: 'from-pink-500 to-pink-600',
+  orange: 'from-orange-500 to-orange-600',
+  teal: 'from-teal-500 to-teal-600',
+  cyan: 'from-cyan-500 to-cyan-600',
+  lime: 'from-lime-500 to-lime-600',
+  amber: 'from-amber-500 to-amber-600',
+};
+---
+
+<Layout
+  title="PCA Exam Guide"
+  description="Complete one-stop guide to clear the Prometheus Certified Associate (PCA) exam"
+>
+  <main class="flex-1">
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)]/5 via-transparent to-transparent"></div>
+      <div class="relative max-w-4xl mx-auto px-6 py-20 text-center">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] text-sm font-medium mb-6">
+          <span class="w-2 h-2 rounded-full bg-[var(--color-primary)] animate-pulse"></span>
+          PCA Exam Preparation
+        </div>
+        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4">
+          Prometheus Certified Associate
+        </h1>
+        <p class="text-xl text-[var(--color-text-secondary)] mb-2">
+          Complete One-Stop Study Guide
+        </p>
+        <p class="text-[var(--color-text-muted)] max-w-2xl mx-auto mb-8">
+          Everything you need to clear the PCA exam in one shot — theory, examples,
+          exam-style questions, and cheat sheets for all 7 domains.
+        </p>
+        <div class="flex flex-wrap items-center justify-center gap-4">
+          <a
+            href="/intro"
+            class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[var(--color-primary)] text-white font-semibold hover:bg-[var(--color-primary-dark)] transition-colors no-underline!"
+          >
+            Start Learning
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+            </svg>
+          </a>
+          <a
+            href="https://training.linuxfoundation.org/certification/prometheus-certified-associate/"
+            target="_blank"
+            rel="noopener"
+            class="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-[var(--color-border)] font-semibold hover:bg-[var(--color-surface-hover)] transition-colors no-underline! text-[var(--color-text)]!"
+          >
+            Official Exam Page
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Exam Stats -->
+    <section class="max-w-4xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {[
+          { label: 'Duration', value: '90 min', icon: '⏱️' },
+          { label: 'Questions', value: '60 MCQ', icon: '📝' },
+          { label: 'Pass Score', value: '75%', icon: '🎯' },
+          { label: 'Validity', value: '2 years', icon: '📅' },
+        ].map((stat) => (
+          <div class="text-center p-4 rounded-xl bg-[var(--color-surface-alt)] border border-[var(--color-border)]">
+            <div class="text-2xl mb-1">{stat.icon}</div>
+            <div class="text-2xl font-bold text-[var(--color-text)]">{stat.value}</div>
+            <div class="text-xs text-[var(--color-text-muted)]">{stat.label}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Domain Cards -->
+    <section class="max-w-4xl mx-auto px-6 py-12">
+      <h2 class="text-2xl font-bold text-center mb-2">Exam Domains</h2>
+      <p class="text-center text-[var(--color-text-muted)] mb-8">
+        Click on any domain to start studying
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {domains.map((domain) => {
+          const doc = docs.find((d) => d.data.domain === domain.id);
+          if (!doc) return null;
+          const gradient = colorMap[domain.color] || colorMap.indigo;
+          return (
+            <a
+              href={`/${doc.slug}/`}
+              class="group relative p-5 rounded-xl border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-all hover:shadow-lg no-underline! overflow-hidden"
+            >
+              <div class={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${gradient}`}></div>
+              <div class="flex items-start gap-3">
+                <span class="text-2xl">{domain.icon}</span>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <h3 class="font-semibold text-[var(--color-text)] group-hover:text-[var(--color-primary)] transition-colors">
+                      {domain.label}
+                    </h3>
+                  </div>
+                  <p class="text-xs text-[var(--color-text-muted)] line-clamp-2">
+                    {doc.data.description}
+                  </p>
+                  {domain.weight && (
+                    <div class="mt-2 flex items-center gap-2">
+                      <div class="flex-1 h-1.5 rounded-full bg-[var(--color-surface-hover)] overflow-hidden">
+                        <div
+                          class={`h-full rounded-full bg-gradient-to-r ${gradient}`}
+                          style={`width: ${domain.weight}%`}
+                        ></div>
+                      </div>
+                      <span class="text-xs font-mono text-[var(--color-text-muted)]">{domain.weight}%</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    </section>
+
+    <!-- Quick Links -->
+    <section class="max-w-4xl mx-auto px-6 py-12">
+      <h2 class="text-2xl font-bold text-center mb-8">Quick Resources</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[
+          { title: 'Official PCA Curriculum', url: 'https://github.com/cncf/curriculum/blob/master/PCA_Curriculum.pdf', icon: '📋' },
+          { title: 'Prometheus Docs', url: 'https://prometheus.io/docs/', icon: '📚' },
+          { title: 'PromQL Cheat Sheet', url: 'https://promlabs.com/promql-cheat-sheet/', icon: '📊' },
+        ].map((link) => (
+          <a
+            href={link.url}
+            target="_blank"
+            rel="noopener"
+            class="flex items-center gap-3 p-4 rounded-lg border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-colors no-underline!"
+          >
+            <span class="text-xl">{link.icon}</span>
+            <span class="text-sm font-medium text-[var(--color-text-secondary)]">{link.title}</span>
+          </a>
+        ))}
+      </div>
+    </section>
+  </main>
+</Layout>

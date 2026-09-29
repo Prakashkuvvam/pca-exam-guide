@@ -1,0 +1,118 @@
+---
+import '../styles/global.css';
+import SearchModal from './SearchModal.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = 'Complete PCA Exam Preparation Guide' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title} | PCA Exam Guide</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <script>
+      // Prevent FOUC for dark mode
+      const theme = localStorage.getItem('theme') ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    </script>
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <header class="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-surface)]/95 backdrop-blur-sm">
+      <div class="max-w-[1400px] mx-auto px-4 h-14 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-2 font-bold text-lg no-underline! text-[var(--color-text)]!">
+          <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#E6522C"/>
+            <path d="M2 17L12 22L22 17" stroke="#E6522C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 12L12 17L22 12" stroke="#E6522C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>PCA Exam Guide</span>
+        </a>
+        <div class="flex items-center gap-3">
+          <button
+            id="search-btn"
+            class="flex items-center gap-2 px-3 py-1.5 rounded-md border border-[var(--color-border)] bg-[var(--color-surface-alt)] text-[var(--color-text-secondary)] text-sm hover:bg-[var(--color-surface-hover)] transition-colors cursor-pointer"
+            aria-label="Search"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <span class="hidden sm:inline">Search</span>
+            <kbd class="hidden sm:inline-flex items-center px-1.5 py-0.5 text-xs font-mono bg-[var(--color-surface)] border border-[var(--color-border)] rounded">⌘K</kbd>
+          </button>
+          <button
+            id="theme-toggle"
+            class="p-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface-alt)] hover:bg-[var(--color-surface-hover)] transition-colors cursor-pointer"
+            aria-label="Toggle dark mode"
+          >
+            <svg id="sun-icon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+            <svg id="moon-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="flex-1 max-w-[1400px] mx-auto w-full flex">
+      <slot />
+    </div>
+
+    <footer class="border-t border-[var(--color-border)] py-6 mt-12">
+      <div class="max-w-[1400px] mx-auto px-4 text-center text-sm text-[var(--color-text-muted)]">
+        <p>PCA Exam Guide — One-stop resource for Prometheus Certified Associate exam preparation</p>
+      </div>
+    </footer>
+
+    <script>
+      // Theme toggle
+      const themeToggle = document.getElementById('theme-toggle');
+      const sunIcon = document.getElementById('sun-icon');
+      const moonIcon = document.getElementById('moon-icon');
+
+      function updateThemeIcon() {
+        const theme = document.documentElement.getAttribute('data-theme');
+        if (theme === 'dark') {
+          sunIcon?.classList.remove('hidden');
+          moonIcon?.classList.add('hidden');
+        } else {
+          sunIcon?.classList.add('hidden');
+          moonIcon?.classList.remove('hidden');
+        }
+      }
+
+      themeToggle?.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        updateThemeIcon();
+      });
+
+      updateThemeIcon();
+
+      // Search shortcut
+      document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+          e.preventDefault();
+          window.dispatchEvent(new CustomEvent('open-search'));
+        }
+      });
+    </script>
+    <SearchModal />
+  </body>
+</html>

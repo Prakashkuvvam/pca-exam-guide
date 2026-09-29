@@ -1,0 +1,126 @@
+---
+---
+
+<div id="search-modal" class="hidden fixed inset-0 z-[100]">
+  <!-- Backdrop -->
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="search-backdrop"></div>
+
+  <!-- Modal -->
+  <div class="relative max-w-xl mx-auto mt-20 px-4">
+    <div class="rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-2xl overflow-hidden">
+      <!-- Search Input -->
+      <div class="flex items-center gap-3 px-4 py-3 border-b border-[var(--color-border)]">
+        <svg class="w-5 h-5 text-[var(--color-text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input
+          type="text"
+          id="search-input"
+          placeholder="Search documentation..."
+          class="flex-1 bg-transparent outline-none text-[var(--color-text)] placeholder-[var(--color-text-muted)]"
+          autocomplete="off"
+        />
+        <kbd class="px-1.5 py-0.5 text-xs font-mono bg-[var(--color-surface-alt)] border border-[var(--color-border)] rounded text-[var(--color-text-muted)]">ESC</kbd>
+      </div>
+
+      <!-- Results -->
+      <div id="search-results" class="max-h-80 overflow-y-auto p-2">
+        <div class="px-3 py-8 text-center text-sm text-[var(--color-text-muted)]">
+          Type to search across all domains
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById('search-modal');
+  const backdrop = document.getElementById('search-backdrop');
+  const input = document.getElementById('search-input') as HTMLInputElement;
+  const results = document.getElementById('search-results');
+
+  function openSearch() {
+    modal?.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => input?.focus(), 50);
+  }
+
+  function closeSearch() {
+    modal?.classList.add('hidden');
+    document.body.style.overflow = '';
+    input.value = '';
+    results!.innerHTML = '<div class="px-3 py-8 text-center text-sm text-[var(--color-text-muted)]">Type to search across all domains</div>';
+  }
+
+  // Listen for custom event from Layout
+  window.addEventListener('open-search', openSearch);
+
+  backdrop?.addEventListener('click', closeSearch);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !modal?.classList.contains('hidden')) {
+      closeSearch();
+    }
+  });
+
+  // Simple search implementation
+  let searchIndex: Array<{ title: string; url: string; content: string }> = [];
+
+  // Fetch search index
+  fetch('/pagefind/pagefind.js')
+    .then(r => r.text())
+    .then(code => {
+      // Pagefind loads dynamically, we'll use a simpler approach
+    })
+    .catch(() => {});
+
+  input?.addEventListener('input', async (e) => {
+    const query = (e.target as HTMLInputElement).value.toLowerCase().trim();
+    if (query.length < 2) {
+      results!.innerHTML = '<div class="px-3 py-8 text-center text-sm text-[var(--color-text-muted)]">Type to search across all domains</div>';
+      return;
+    }
+
+    // Simple client-side search through page content
+    try {
+      const pages = ['intro', 'domain-1', 'domain-2', 'domain-3', 'domain-4', 'domain-5', 'domain-6', 'domain-7'];
+      const matches: Array<{ title: string; url: string; snippet: string }> = [];
+
+      for (const page of pages) {
+        const res = fetch(`/${page}/`);
+        const html = await (await res).text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const title = doc.querySelector('h1')?.textContent || page;
+        const content = doc.querySelector('article')?.textContent || '';
+
+        if (content.toLowerCase().includes(query) || title.toLowerCase().includes(query)) {
+          // Find snippet around match
+          const idx = content.toLowerCase().indexOf(query);
+          const start = Math.max(0, idx - 50);
+          const end = Math.min(content.length, idx + 100);
+          const snippet = content.slice(start, end).trim();
+
+          matches.push({
+            title,
+            url: `/${page}/`,
+            snippet: `...${snippet}...`
+          });
+        }
+      }
+
+      if (matches.length === 0) {
+        results!.innerHTML = '<div class="px-3 py-8 text-center text-sm text-[var(--color-text-muted)]">No results found</div>';
+      } else {
+        results!.innerHTML = matches.map(m => `
+          <a href="${m.url}" class="block px-3 py-2 rounded-lg hover:bg-[var(--color-surface-hover)] no-underline!" onclick="document.getElementById('search-modal').classList.add('hidden')">
+            <div class="text-sm font-medium text-[var(--color-text)]">${m.title}</div>
+            <div class="text-xs text-[var(--color-text-muted)] mt-0.5">${m.snippet}</div>
+          </a>
+        `).join('');
+      }
+    } catch {
+      results!.innerHTML = '<div class="px-3 py-8 text-center text-sm text-[var(--color-text-muted)]">Search unavailable</div>';
+    }
+  });
+</script>
